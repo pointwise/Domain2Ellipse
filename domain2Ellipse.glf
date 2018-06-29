@@ -1,5 +1,5 @@
 #
-# Copyright 2015 (c) Pointwise, Inc.
+# Copyright 2018 (c) Pointwise, Inc.
 # All rights reserved.
 # 
 # This sample script is not supported by Pointwise, Inc.
@@ -52,19 +52,23 @@ for {set c 0} {$c < $numHistory} {incr c} {
    lappend colorHistory $rgb
 }
 
-# Ask user to select a single domain.
-set selMask [pw::Display createSelectionMask -requireDomain ""]
-set selStatus [pw::Display selectEntities -description "Select a domain." \
-    -selectionmask $selMask -single selResults]
 
-if { ! $selStatus } {
-   # Nothing was selected - exit.
-   exit
-} else {
-   # Get the selected domain from the selection results.
-   set domList $selResults(Domains)
-   set domSelected [lindex $domList 0]
+# See if a single domain was already selected
+pw::Display getSelectedEntities ents
+if { [llength $ents(Domains)] != 1 } {
+   puts "One and only one Domain may be selected."
+   set selMask [pw::Display createSelectionMask -requireDomain ""]
+   set selStatus [pw::Display selectEntities -description "Select a domain." \
+      -selectionmask $selMask -single ents]
+
+   if { ! $selStatus } {
+      # Nothing was selected - exit.
+      exit
+   }
 }
+
+# Get the selected domain from the selection results.
+set domSelected [lindex $ents(Domains) 0]
 
 # Initialize a bounding box.
 set bbox [pwu::Extents empty]
